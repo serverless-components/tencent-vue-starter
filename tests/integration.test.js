@@ -13,10 +13,17 @@ const instanceYaml = {
   name: `vue-integration-tests-${generateId()}`,
   stage: 'dev',
   inputs: {
-    src: path.resolve(__dirname, './src/'),
+    src: {
+      src: path.resolve(__dirname, '../src/'),
+      hook: 'npm run build',
+      dist: path.resolve(__dirname, '../dist/'),
+    },
     region: 'ap-guangzhou',
     runtime: 'Nodejs10.15',
     apigatewayConf: { environment: 'test' },
+  },
+  src: {
+    src: path.resolve(__dirname, '../'),
   },
 }
 
@@ -37,10 +44,8 @@ it('should successfully deploy vue app', async () => {
   const response = await axios.get(instance.outputs.website)
 
   expect(
-    response.data.includes(
-      'a website built on serverless components and Vue via the serverless framework',
-    ),
-  ).toBeTruthy()
+    RegExp('<title[^>]*>s*(?<Title>.*?)s*</title>', 'g').exec(response.data)[1],
+  ).toEqual('tencent-vue-starter')
 })
 
 it('should successfully remove vue app', async () => {
